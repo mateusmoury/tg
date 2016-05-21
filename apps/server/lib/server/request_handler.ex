@@ -1,5 +1,4 @@
 defmodule Server.RequestHandler do
-  require Logger
 
   def accept(port) do
     {:ok, socket} = :gen_tcp.listen(
