@@ -6,9 +6,9 @@ defmodule Client.Proxy do
         {:error, :invalid_number_of_arguments}
       else
         if type_check(args, args_checker) do
-          {:ok, Client.Requestor.invoke({host, port}, functionName, args)}
+          Client.Requestor.invoke({host, port}, functionName, args)
         else
-          {:error, :invalid_argument_types}
+          {:error, :invalid_arguments_types}
         end
       end
     end

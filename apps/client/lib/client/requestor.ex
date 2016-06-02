@@ -22,7 +22,7 @@ defmodule Client.Requestor do
   end
 
   defp return_to_proxy({:ok, data}) do
-    Client.Marshaller.unmarshall(data)
+    {:ok, Client.Marshaller.unmarshall(data)}
   end
 
   defp return_to_proxy(error) do
