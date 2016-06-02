@@ -36,6 +36,6 @@ defmodule Server.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:messaging_layer, in_umbrella: true}]
+    [{:invocation_layer, in_umbrella: true}]
   end
 end

@@ -1,14 +1,20 @@
 defmodule Server do
+  use Supervisor
 
   def start(_type, _args) do
-    import Supervisor.Spec
 
-    children = [
-      supervisor(Task.Supervisor, [[name: Server.Invoker.TaskSupervisor]]),
-      worker(Task, [Server.Invoker, :invoke, [Application.get_env(:server, :port)]])
-    ]
+    result = {:ok, sup} = Supervisor.start_link(__MODULE__, [])
+    start_workers(sup)
+    result
+  end
 
-    opts = [strategy: :one_for_one, name: Server.Invoker.Supervisor]
-    Supervisor.start_link(children, opts)
+  def start_workers(sup) do
+    {:ok, invoker_sup} =
+      Supervisor.start_child(sup, supervisor(Task.Supervisor, []))
+    Supervisor.start_child(sup, worker(Task, [InvocationLayer.Invoker, :invoke, [4040, invoker_sup]]))
+  end
+
+  def init(_) do
+    supervise [], strategy: :one_for_one
   end
 end

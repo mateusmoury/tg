@@ -1,12 +1,12 @@
-defmodule Client.Proxy do
+defmodule InvocationLayer.ClientProxy do
 
-  def generate_function({{host, port}, {functionName, args_checker}}) do
+  def generate_function({{host, port}, {moduleName, functionName, args_checker}}) do
     fn args ->
       if length(args) != length(args_checker) do
         {:error, :invalid_number_of_arguments}
       else
         if type_check(args, args_checker) do
-          Client.Requestor.invoke({host, port}, functionName, args)
+          InvocationLayer.Requestor.invoke({host, port}, {moduleName, functionName, args})
         else
           {:error, :invalid_arguments_types}
         end

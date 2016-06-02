@@ -1,8 +1,8 @@
-defmodule Client.Mixfile do
+defmodule InvocationLayer.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :client,
+    [app: :invocation_layer,
      version: "0.0.1",
      deps_path: "../../deps",
      lockfile: "../../mix.lock",

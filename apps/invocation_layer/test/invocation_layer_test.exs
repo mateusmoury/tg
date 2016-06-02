@@ -1,6 +1,6 @@
-defmodule ClientTest do
+defmodule InvocationLayerTest do
   use ExUnit.Case
-  doctest Client
+  doctest InvocationLayer
 
   test "the truth" do
     assert 1 + 1 == 2
