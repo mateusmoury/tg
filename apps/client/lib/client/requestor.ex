@@ -1,23 +1,24 @@
 defmodule Client.Requestor do
 
   def invoke({host, port}, functionName, args) do
-    case Client.RequestHandler.connect(host, port) do
-      {:ok, pid} ->
-        handle_communication(pid, functionName, args)
+    case MessagingLayer.ClientRequestHandler.connect(host, port) do
+      {:ok, socket} ->
+        handle_communication(socket, functionName, args)
       error ->
         error
     end
   end
 
-  defp handle_communication(socket_pid, functionName, args) do
+  defp handle_communication(socket, functionName, args) do
     marshalledMessage = Client.Marshaller.marshall({functionName, args})
     response_data =
-      case Client.RequestHandler.send_message(socket_pid, marshalledMessage) do
+      case MessagingLayer.ClientRequestHandler.send_message(socket, marshalledMessage) do
         :ok ->
-          Client.RequestHandler.receive_message(socket_pid)
+          MessagingLayer.ClientRequestHandler.receive_message(socket)
         error ->
           error
       end
+    MessagingLayer.ClientRequestHandler.disconnect(socket)
     return_to_proxy(response_data)
   end
 

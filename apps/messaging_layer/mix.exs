@@ -1,8 +1,8 @@
-defmodule Client.Mixfile do
+defmodule MessagingLayer.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :client,
+    [app: :messaging_layer,
      version: "0.0.1",
      deps_path: "../../deps",
      lockfile: "../../mix.lock",
@@ -33,6 +33,6 @@ defmodule Client.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:messaging_layer, in_umbrella: true}]
+    []
   end
 end

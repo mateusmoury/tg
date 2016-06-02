@@ -18,8 +18,7 @@ defmodule Server.Mixfile do
   def application do
     [
       applications: [:logger],
-      mod: {Server, []},
-      registered: [Server.RequestHandler]
+      mod: {Server, []}
     ]
   end
 
@@ -37,6 +36,6 @@ defmodule Server.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [{:messaging_layer, in_umbrella: true}]
   end
 end

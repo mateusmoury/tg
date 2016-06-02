@@ -4,11 +4,11 @@ defmodule Server do
     import Supervisor.Spec
 
     children = [
-      supervisor(Task.Supervisor, [[name: Server.RequestHandler.TaskSupervisor]]),
-      worker(Task, [Server.RequestHandler, :listen, [Application.get_env(:server, :port)]])
+      supervisor(Task.Supervisor, [[name: Server.Invoker.TaskSupervisor]]),
+      worker(Task, [Server.Invoker, :invoke, [Application.get_env(:server, :port)]])
     ]
 
-    opts = [strategy: :one_for_one, name: Server.RequestHandler.Supervisor]
+    opts = [strategy: :one_for_one, name: Server.Invoker.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end
