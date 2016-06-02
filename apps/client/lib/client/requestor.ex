@@ -10,7 +10,7 @@ defmodule Client.Requestor do
   end
 
   defp handle_communication(socket_pid, functionName, args) do
-    marshalledMessage = Client.Marshaller.marshall(functionName, args)
+    marshalledMessage = Client.Marshaller.marshall({functionName, args})
     response_data =
       case Client.RequestHandler.send_message(socket_pid, marshalledMessage) do
         :ok ->
