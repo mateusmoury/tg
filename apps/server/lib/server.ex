@@ -2,7 +2,6 @@ defmodule Server do
   use Supervisor
 
   def start(_type, _args) do
-
     result = {:ok, sup} = Supervisor.start_link(__MODULE__, [])
     start_workers(sup)
     result
