@@ -1,7 +1,7 @@
 defmodule Client.Marshaller do
 
-  def marshall(_functionName, args) do
-    :erlang.term_to_binary(args)
+  def marshall(functionName, args) do
+    :erlang.term_to_binary({functionName, args})
   end
 
   def unmarshall(byteArray) do

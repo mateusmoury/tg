@@ -5,7 +5,7 @@ defmodule Server do
 
     children = [
       supervisor(Task.Supervisor, [[name: Server.RequestHandler.TaskSupervisor]]),
-      worker(Task, [Server.RequestHandler, :accept, [Application.get_env(:server, :port)]])
+      worker(Task, [Server.RequestHandler, :listen, [Application.get_env(:server, :port)]])
     ]
 
     opts = [strategy: :one_for_one, name: Server.RequestHandler.Supervisor]
