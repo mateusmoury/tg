@@ -1,4 +1,4 @@
-defmodule InvocationLayer.Marshaller do
+defmodule MessagingLayer.Marshaller do
 
   def marshall(request) do
     :erlang.term_to_binary(request)

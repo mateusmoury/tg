@@ -24,9 +24,9 @@ defmodule InvocationLayer.Invoker do
         {:ok, marshalled_data} = MessagingLayer.ServerRequestHandler.receive_msg(client)
 
         marshalled_data
-        |> InvocationLayer.Marshaller.unmarshall
+        |> MessagingLayer.Marshaller.unmarshall
         |> call_function
-        |> InvocationLayer.Marshaller.marshall
+        |> MessagingLayer.Marshaller.marshall
         |> MessagingLayer.ServerRequestHandler.send_msg(client)
 
         MessagingLayer.ServerRequestHandler.disconnect(client)

@@ -10,7 +10,7 @@ defmodule InvocationLayer.Requestor do
   end
 
   defp handle_communication(socket, moduleName, functionName, args) do
-    marshalledMessage = InvocationLayer.Marshaller.marshall({moduleName, functionName, args})
+    marshalledMessage = MessagingLayer.Marshaller.marshall({moduleName, functionName, args})
     response_data =
       case MessagingLayer.ClientRequestHandler.send_message(socket, marshalledMessage) do
         :ok ->
@@ -23,7 +23,7 @@ defmodule InvocationLayer.Requestor do
   end
 
   defp return_to_proxy({:ok, data}) do
-    {:ok, InvocationLayer.Marshaller.unmarshall(data)}
+    {:ok, MessagingLayer.Marshaller.unmarshall(data)}
   end
 
   defp return_to_proxy(error) do
