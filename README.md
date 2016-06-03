@@ -14,3 +14,17 @@ Para utilizar:
 8. Acesse o app do InvocationLayer: $ cd apps/invocation_layer
 9. Ative-o: $ iex -S mix
 10. Nessa aba, dentro do iex, você pode requisitar a função lookup do serviço de nomes, assim como pegar os serviços remotos.
+
+### Exemplo
+Se tudo estiver sendo executado no localhost e o servidor de nomes estiver na porta 5050: 
+```elixir
+lookup = InvocationLayer.ClientProxy.generate_function(
+  {{:localhost, 5050}, 
+  {NamingService.LookupTable, :lookup, [&is_bitstring/1]}}
+)
+
+{:ok ,add_description} = lookup.(["add"]) # Obtendo endereço e interface da função remota que atende pelo serviço "add"
+add = InvocationLayer.ClientProxy.generate_function(add_description) # ClientProxy cria função que abstrai invocação remota
+add.([3,4]) # Operação remota acontece de forma transparente.
+
+```
