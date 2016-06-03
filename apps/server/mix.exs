@@ -7,6 +7,7 @@ defmodule Server.Mixfile do
      deps_path: "../../deps",
      lockfile: "../../mix.lock",
      elixir: "~> 1.1",
+     escript: escript,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps]
@@ -20,6 +21,10 @@ defmodule Server.Mixfile do
       applications: [:logger],
       mod: {Server, []}
     ]
+  end
+
+  def escript do
+    [main_module: Server.CLI]
   end
 
   # Dependencies can be Hex packages:
