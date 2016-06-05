@@ -7,6 +7,7 @@ defmodule NamingService.Mixfile do
      deps_path: "../../deps",
      lockfile: "../../mix.lock",
      elixir: "~> 1.1",
+     escript: escript,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps]
@@ -16,8 +17,11 @@ defmodule NamingService.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger],
-     mod: {NamingService, []}]
+    [applications: [:logger]]
+  end
+
+  def escript do
+    [main_module: NamingService.CLI]
   end
 
   # Dependencies can be Hex packages:
