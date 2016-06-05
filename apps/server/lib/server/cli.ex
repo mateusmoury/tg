@@ -46,7 +46,7 @@ defmodule Server.CLI do
     if valid_port(port) do
       elem(Integer.parse(port), 0)
     else
-      :error
+      :port_error
     end
   end
 
@@ -60,11 +60,11 @@ defmodule Server.CLI do
   end
 
   defp build_paths({:error, :invalid_number_of_args}) do
-    IO.puts "Erro! Número inválido de argumentos."
+    IO.puts "Erro! Número inválido de argumentos. Use a opção --help para saber como usar o executável."
     System.halt(0)
   end
 
-  defp build_paths({:error, _}) do
+  defp build_paths({:port_error, _}) do
     IO.puts "Erro! Porta inválida para escutar requisições neste servidor."
     System.halt(0)
   end
@@ -74,7 +74,7 @@ defmodule Server.CLI do
     System.halt(0)
   end
 
-  defp build_paths({_, {_, :error}}) do
+  defp build_paths({_, {_, :port_error}}) do
     IO.puts "Erro! Porta inválida para se comunicar com o serviço de nomes. Forneça uma porta válida."
     System.halt(0)
   end
