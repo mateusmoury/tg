@@ -5,7 +5,7 @@
 Para utilizar:
 
 1. Acesse o app do NamingService: $ cd apps/naming_service
-2. Ative-o: $ iex -S mix
+2. Rode o executável do serviço de nomes com o pariametro help e aprenda a utilizá-lo: $ ./naming_service --help
 3. Abra uma nova aba no terminal
 4. Acesse o app do Server: $ cd apps/server
 5. Rode o executável do servidor com o parâmetro help e aprenda a utilizá-lo: $ ./server --help
