@@ -95,7 +95,7 @@ defmodule Server.CLI do
   defp bind_services(port, naming_host, naming_port) do
     naming_service_address = {naming_host, naming_port}
     naming_service_bind = {NamingService.LookupTable, :bind, [&is_bitstring/1, &is_tuple/1]}
-    remote_bind = InvocationLayer.ClientProxy.generate_remote_function({naming_service_address, naming_service_bind})
+    remote_bind = InvocationLayer.ClientProxy.remote_function({naming_service_address, naming_service_bind})
     {:ok, [{server_ip, _, _}, _]} = :inet.getif()
 
     ## Adding services
