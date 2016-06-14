@@ -18,13 +18,13 @@ Para utilizar:
 ### Exemplo
 Se tudo estiver sendo executado no localhost e o servidor de nomes estiver na porta 5050: 
 ```elixir
-lookup = InvocationLayer.ClientProxy.generate_function(
+lookup = InvocationLayer.ClientProxy.generate_remote_function(
   {{:localhost, 5050}, 
   {NamingService.LookupTable, :lookup, [&is_bitstring/1]}}
 )
 
 {:ok ,add_description} = lookup.(["add"]) # Obtendo endereço e interface da função remota que atende pelo serviço "add"
-add = InvocationLayer.ClientProxy.generate_function(add_description) # ClientProxy cria função que abstrai invocação remota
+add = InvocationLayer.ClientProxy.generate_remote_function(add_description) # ClientProxy cria função que abstrai invocação remota
 add.([3,4]) # Operação remota acontece de forma transparente.
 
 ```
