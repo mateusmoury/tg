@@ -1,18 +1,18 @@
 defmodule InvocationLayer.Requestor do
 
-  def invoke({host, port}, {moduleName, functionName, args}) do
+  def invoke({host, port}, {mod_name, func_name, args}) do
     case MessagingLayer.ClientRequestHandler.connect(host, port) do
       {:ok, socket} ->
-        handle_communication(socket, moduleName, functionName, args)
+        handle_communication(socket, mod_name, func_name, args)
       error ->
         error
     end
   end
 
-  defp handle_communication(socket, moduleName, functionName, args) do
-    marshalledMessage = MessagingLayer.Marshaller.marshall({moduleName, functionName, args})
+  defp handle_communication(socket, mod_name, func_name, args) do
+    marshalled_message = MessagingLayer.Marshaller.marshall({mod_name, func_name, args})
     response_data =
-      case MessagingLayer.ClientRequestHandler.send_message(socket, marshalledMessage) do
+      case MessagingLayer.ClientRequestHandler.send_message(socket, marshalled_message) do
         :ok ->
           MessagingLayer.ClientRequestHandler.receive_message(socket)
         error ->
