@@ -33,7 +33,7 @@ defmodule InvocationLayer.Invoker do
     end
   end
 
-  defp call_function({moduleName, functionName, args}) do
-    apply(moduleName, functionName, args)
+  defp call_function({mod_name, func_name, args}) do
+    apply(mod_name, func_name, args)
   end
 end
