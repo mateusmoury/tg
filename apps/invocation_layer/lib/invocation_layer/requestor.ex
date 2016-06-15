@@ -18,7 +18,6 @@ defmodule InvocationLayer.Requestor do
         error ->
           error
       end
-    MessagingLayer.ClientRequestHandler.disconnect(socket)
     return_to_proxy(response_data)
   end
 
