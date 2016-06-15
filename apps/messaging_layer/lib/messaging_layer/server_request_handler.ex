@@ -19,7 +19,13 @@ defmodule MessagingLayer.ServerRequestHandler do
   end
 
   def receive_message(socket) do
-    :gen_tcp.recv(socket, 0, @timeout)
+    case :gen_tcp.recv(socket, 0, @timeout) do
+      error = {:error, _} ->
+        :gen_tcp.close(socket)
+        error
+      data = {:ok, _} ->
+        data
+    end
   end
 
   def send_message(message, socket) do
@@ -30,6 +36,7 @@ defmodule MessagingLayer.ServerRequestHandler do
     case :gen_tcp.send(socket, message) do
       error = {:error, _reason} ->
         if attempt == @max_attempts do
+          :gen_tcp.close(socket)
           error
         else
           _send_message(socket, message, attempt + 1)

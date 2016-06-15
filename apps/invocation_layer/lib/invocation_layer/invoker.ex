@@ -1,8 +1,12 @@
 defmodule InvocationLayer.Invoker do
   
   def invoke(port, supervisor_pid) do
-    {:ok, socket} = MessagingLayer.ServerRequestHandler.listen(port)
-    connection_loop(socket, supervisor_pid)
+    case MessagingLayer.ServerRequestHandler.listen(port) do
+      {:ok, socket} ->
+        connection_loop(socket, supervisor_pid)
+      _ ->
+        {:error, :unable_to_use_port}
+    end
   end
 
   defp connection_loop(socket, supervisor_pid) do
@@ -21,15 +25,16 @@ defmodule InvocationLayer.Invoker do
   defp process_request(client) do
     receive do
       :proceed ->
-        {:ok, marshalled_data} = MessagingLayer.ServerRequestHandler.receive_message(client)
-
-        marshalled_data
-        |> MessagingLayer.Marshaller.unmarshall
-        |> call_function
-        |> MessagingLayer.Marshaller.marshall
-        |> MessagingLayer.ServerRequestHandler.send_message(client)
-
-        MessagingLayer.ServerRequestHandler.disconnect(client)
+        case MessagingLayer.ServerRequestHandler.receive_message(client) do
+          {:ok, marshalled_data} ->
+            marshalled_data
+            |> MessagingLayer.Marshaller.unmarshall
+            |> call_function
+            |> MessagingLayer.Marshaller.marshall
+            |> MessagingLayer.ServerRequestHandler.send_message(client)
+          _ ->
+            {:error, :unable_to_receive_message}
+        end
     end
   end
 
