@@ -4,8 +4,8 @@ defmodule InvocationLayer.Invoker do
     case MessagingLayer.ServerRequestHandler.listen(port) do
       {:ok, socket} ->
         connection_loop(socket, supervisor_pid)
-      _ ->
-        {:error, :unable_to_use_port}
+      error ->
+        error
     end
   end
 
@@ -32,8 +32,8 @@ defmodule InvocationLayer.Invoker do
             |> call_function
             |> MessagingLayer.Marshaller.marshall
             |> MessagingLayer.ServerRequestHandler.send_message(client)
-          _ ->
-            {:error, :unable_to_receive_message}
+          error ->
+            error
         end
     end
   end

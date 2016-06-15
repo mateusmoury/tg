@@ -4,10 +4,12 @@ defmodule MessagingLayer.ServerRequestHandler do
   @max_attempts 3
 
   def listen(port) do
-    :gen_tcp.listen(
-      port,
-      [:binary, active: false, reuseaddr: true]
-    )
+    case :gen_tcp.listen(port, [:binary, active: false, reuseaddr: true]) do
+      {:error, _} ->
+        {:error, :unable_to_use_port}
+      socket ->
+        socket
+    end
   end
 
   def accept(socket) do
@@ -20,10 +22,10 @@ defmodule MessagingLayer.ServerRequestHandler do
 
   def receive_message(socket) do
     case :gen_tcp.recv(socket, 0, @timeout) do
-      error = {:error, _} ->
+      {:error, _} ->
         :gen_tcp.close(socket)
-        error
-      data = {:ok, _} ->
+        {:error, :unable_to_receive_message}
+      data ->
         data
     end
   end
@@ -34,10 +36,10 @@ defmodule MessagingLayer.ServerRequestHandler do
 
   defp _send_message(message, socket, attempt) do
     case :gen_tcp.send(socket, message) do
-      error = {:error, _reason} ->
+      {:error, _} ->
         if attempt == @max_attempts do
           :gen_tcp.close(socket)
-          error
+          {:error, :unable_to_send_message}
         else
           _send_message(socket, message, attempt + 1)
         end
