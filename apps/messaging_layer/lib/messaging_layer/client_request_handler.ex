@@ -1,6 +1,6 @@
 defmodule MessagingLayer.ClientRequestHandler do
 
-  @timeout 5000
+  @timeout 10000
   @max_attempts 3
 
   def connect(host, port) do

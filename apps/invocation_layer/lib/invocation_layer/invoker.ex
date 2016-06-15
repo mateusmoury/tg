@@ -21,13 +21,13 @@ defmodule InvocationLayer.Invoker do
   defp process_request(client) do
     receive do
       :proceed ->
-        {:ok, marshalled_data} = MessagingLayer.ServerRequestHandler.receive_msg(client)
+        {:ok, marshalled_data} = MessagingLayer.ServerRequestHandler.receive_message(client)
 
         marshalled_data
         |> MessagingLayer.Marshaller.unmarshall
         |> call_function
         |> MessagingLayer.Marshaller.marshall
-        |> MessagingLayer.ServerRequestHandler.send_msg(client)
+        |> MessagingLayer.ServerRequestHandler.send_message(client)
 
         MessagingLayer.ServerRequestHandler.disconnect(client)
     end
