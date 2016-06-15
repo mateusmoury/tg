@@ -1,18 +1,27 @@
 defmodule MessagingLayer.ClientRequestHandler do
 
-  @timeout 2000
+  @timeout 5000
+  @max_attempts 3
 
   def connect(host, port) do
-    case :gen_tcp.connect(host, port, [:binary, active: false], @timeout) do
-      {:ok, socket} ->
-        {:ok, socket}
-      error ->
-        error
-    end
+    :gen_tcp.connect(host, port, [:binary, active: false], @timeout)
   end
 
   def send_message(socket, message) do
-    :gen_tcp.send(socket, message)
+    _send_message(socket, message, 0)
+  end
+
+  defp _send_message(socket, message, attempt) do
+    case :gen_tcp.send(socket, message) do
+      error = {:error, _reason} ->
+        if attempt == @max_attempts do
+          error
+        else
+          _send_message(socket, message, attempt + 1)
+        end
+      _ ->
+        :ok
+    end
   end
 
   def receive_message(socket) do
