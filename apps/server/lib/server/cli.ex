@@ -99,6 +99,15 @@ defmodule Server.CLI do
     {:ok, [{server_ip, _, _}, _]} = :inet.getif()
 
     ## Adding services
-    remote_bind.(["add", {{server_ip, port}, {Server.Application, :add, [&is_number/1, &is_number/1]}}])
+    check_validity("add", remote_bind.(["add", {{server_ip, port}, {Server.Application, :add, [&is_number/1, &is_number/1]}}]))
+  end
+
+  defp check_validity(name, {:error, _}) do
+    IO.puts "Erro! Não conseguiu cadastrar função #{name} no serviço de nomes!"
+    System.halt(0)
+  end
+
+  defp check_validity(_, resp = {:ok, _}) do
+    resp
   end
 end
