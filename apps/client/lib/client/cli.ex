@@ -89,14 +89,36 @@ defmodule Client.CLI do
     pmap_description = check_validity("pmap", lookup.(["pmap"]))
     pmap_func = InvocationLayer.ClientProxy.remote_function(pmap_description)
     me = self
-    Enum.each(1..clients_number, fn(_) -> 
+    Enum.each(1..clients_number, fn(_) ->
       spawn(fn -> 
-        send(me, {:answer, :timer.tc(pmap_func, [[[35, 36, 37], &Utils.sq/1]])})
+        send(me, {:answer, :timer.tc(pmap_func, [[[27, 28, 29, 30], &Utils.fib/1]])})
       end) 
     end)
-    {answers, failures} = receive_answers(clients_number, [], [])
-    IO.inspect(length(answers))
-    IO.inspect(failures)
+    {answers, _} = receive_answers(clients_number, [], [])
+    acc =
+      answers
+      |> Enum.map(fn {time, _} -> time end)
+      |> Enum.reduce(fn(x, acc) -> x + acc end)
+    IO.puts(length(answers))
+    IO.puts(acc / length(answers))
+  end
+
+  def map(lookup, clients_number) do
+    map_description = check_validity("map", lookup.(["map"]))
+    map_func = InvocationLayer.ClientProxy.remote_function(map_description)
+    me = self
+    Enum.each(1..clients_number, fn(_) ->
+      spawn(fn ->
+        send(me, {:answer, :timer.tc(map_func, [[[27, 28, 29, 30], &Utils.fib/1]])})
+      end)
+    end)
+    {answers, _} = receive_answers(clients_number, [], [])
+    acc =
+      answers
+      |> Enum.map(fn {time, _} -> time end)
+      |> Enum.reduce(fn(x, acc) -> x + acc end)
+    IO.puts(length(answers))
+    IO.puts(acc / length(answers))
   end
 
   def receive_answers(number_of_concurrents, answers, failures) do

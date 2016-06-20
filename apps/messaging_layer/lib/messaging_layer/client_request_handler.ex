@@ -1,12 +1,25 @@
 defmodule MessagingLayer.ClientRequestHandler do
 
   @timeout 10000
-  @max_attempts 3
+  @max_attempts 10
 
   def connect(host, port) do
+    _connect(host, port, 0)
+  end
+
+  def _connect(host, port, attempt) do
     case :gen_tcp.connect(host, port, [:binary, active: false], @timeout) do
-      {:error, _} ->
+      {:error, :timeout} ->
         {:error, :unable_to_connect_to_server}
+
+      {:error, _} ->
+        if attempt == @max_attempts do
+          {:error, :unable_to_connect_to_server}
+        else
+          :timer.sleep(1000)
+          _connect(host, port, attempt + 1)
+        end
+
       socket_info ->
         socket_info
     end
@@ -23,6 +36,7 @@ defmodule MessagingLayer.ClientRequestHandler do
           :gen_tcp.close(socket)
           {:error, :unable_to_send_message}
         else
+          :timer.sleep(1000)
           _send_message(socket, message, attempt + 1)
         end
       _ ->

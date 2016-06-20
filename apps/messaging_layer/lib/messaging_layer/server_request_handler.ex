@@ -41,9 +41,11 @@ defmodule MessagingLayer.ServerRequestHandler do
           :gen_tcp.close(socket)
           {:error, :unable_to_send_message}
         else
+          :timer.sleep(1000)
           _send_message(socket, message, attempt + 1)
         end
       _ ->
+        :timer.sleep(1000)
         :gen_tcp.close(socket)
         :ok
     end
