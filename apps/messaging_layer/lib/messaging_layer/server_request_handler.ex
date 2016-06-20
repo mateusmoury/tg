@@ -1,9 +1,11 @@
 defmodule MessagingLayer.ServerRequestHandler do
+  require Logger
 
   @timeout 10000
   @max_attempts 3
 
   def listen(port) do
+    Logger.info "Listening to port #{port}"
     case :gen_tcp.listen(port, [:binary, active: false, reuseaddr: true]) do
       {:error, _} ->
         {:error, :unable_to_use_port}
