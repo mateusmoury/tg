@@ -99,7 +99,7 @@ defmodule Server.CLI do
     {:ok, [{server_ip, _, _}, _]} = :inet.getif()
 
     ## Adding services
-    check_validity("add", remote_bind.(["add", {{server_ip, port}, {Server.Application, :add, [&is_number/1, &is_number/1]}}]))
+    check_validity("pmap", remote_bind.(["pmap", {{server_ip, port}, {Server.Application, :pmap, [&is_list/1, &is_function/1]}}]))
   end
 
   defp check_validity(name, {:error, _}) do
@@ -107,7 +107,8 @@ defmodule Server.CLI do
     System.halt(0)
   end
 
-  defp check_validity(_, resp = {:ok, _}) do
+  defp check_validity(name, resp = {:ok, _}) do
+    IO.puts "Função #{name} adicionada com sucesso ao serviço de nomes"
     resp
   end
 end

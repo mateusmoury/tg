@@ -76,15 +76,20 @@ defmodule Client.CLI do
     apply(__MODULE__, String.to_atom(service), [lookup])
   end
 
-  def add(lookup) do
-    add_description = check_validity(lookup.(["add"]))
-    add_func = InvocationLayer.ClientProxy.remote_function(add_description)
-    IO.puts(add_func.([3, 4]))
+  def pmap(lookup) do
+    pmap_description = check_validity("pmap", lookup.(["pmap"]))
+    pmap_func = InvocationLayer.ClientProxy.remote_function(pmap_description)
+    {:ok, result} = pmap_func.([[5, 10, 15, 20, 25, 30, 35, 40], &Utils.fib/1])
+    IO.inspect(result, char_lists: false)
   end
 
-  def check_validity({:ok, desc}), do: desc
-  def check_validity({:error, _}) do
-    IO.puts "Erro! Não foi possivel usar o serviço add"
+  def check_validity(name, {:ok, desc}) do
+    IO.puts "Função #{name} captada com sucesso no serviço de nomes"
+    desc
+  end
+
+  def check_validity(name, {:error, _}) do
+    IO.puts "Erro! Não foi possivel usar o serviço #{name}"
     System.halt(0)
   end
 end
