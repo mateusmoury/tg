@@ -4,7 +4,7 @@ defmodule Client.CLI do
     Cliente escrito em Elixir para testar o middleware desenvolvido.
     Pode ser executado da seguinte maneira:
 
-    $ ./client --naming-host {naming_ip_address} --naming-port {naming_port} --service {service}
+    $ ./client --naming-host {naming_ip_address} --naming-port {naming_port} --service {service} --clients {clients_number}
 
     O naming_host e a naming_port devem conter a localização do serviço de nomes,
     Que é a máquina onde o cliente vai buscar as funções assim que for
@@ -13,6 +13,7 @@ defmodule Client.CLI do
     O parametro naming_host deve ser um endereço ip válido ou localhost, para localizar o serviço de nomes.
     O parametro naming_port deve ser uma porta válida, contendo apenas números, que o serviço de nomes escuta.
     O pametro service deve ser o nome de um servico que o cliente quer utilizar
+    O paraemntro clients_number deve ser o numero de clientes a serem executados
   """
 
   def main(args) do
@@ -25,8 +26,8 @@ defmodule Client.CLI do
     case OptionParser.parse(args) do
       {[help: true], _, _} ->
         :help
-      {[naming_host: naming_host, naming_port: naming_port, service: service], _, _} ->
-        {{parse_host(naming_host), parse_port(naming_port)}, service}
+      {[naming_host: naming_host, naming_port: naming_port, service: service, clients: clients_number], _, _} ->
+        {{parse_host(naming_host), parse_port(naming_port)}, {service, parse_client_number(clients_number)}}
       _ ->
         {:error, :invalid_number_of_args}
     end
@@ -40,15 +41,23 @@ defmodule Client.CLI do
   end
 
   defp parse_port(port) do
-    if valid_port(port) do
+    if valid_integer(port) do
       elem(Integer.parse(port), 0)
     else
       :port_error
     end
   end
 
-  defp valid_port(port) do
+  defp valid_integer(port) do
     String.length(port) != 0 && Regex.match?(~r/^[0-9]*$/, port)
+  end
+
+  defp parse_client_number(clients_number) do
+    if valid_integer(clients_number) do
+      elem(Integer.parse(clients_number), 0)
+    else
+      :clients_number_error
+    end
   end
 
   defp build_paths(:help) do
@@ -69,27 +78,43 @@ defmodule Client.CLI do
     IO.puts "Erro! Hostname inválido para o serviço de nomes."
   end
 
-  defp build_paths({{{:ok, naming_host}, naming_port}, service}) do
+  defp build_paths({{{:ok, naming_host}, naming_port}, {service, clients_number}}) do
     naming_service_address = {naming_host, naming_port}
     naming_service_lookup = {NamingService.LookupTable, :lookup, [&is_bitstring/1]}
     lookup = InvocationLayer.ClientProxy.remote_function({naming_service_address, naming_service_lookup})
-    apply(__MODULE__, String.to_atom(service), [lookup])
+    apply(__MODULE__, String.to_atom(service), [lookup, clients_number])
   end
 
-  def pmap(lookup) do
+  def pmap(lookup, clients_number) do
     pmap_description = check_validity("pmap", lookup.(["pmap"]))
     pmap_func = InvocationLayer.ClientProxy.remote_function(pmap_description)
-    {time, {:ok, result}} = :timer.tc(pmap_func, [[[35, 36, 37, 38], &Utils.fib/1]])
-    IO.inspect(result, char_lists: false)
-    IO.puts time / 1000000
+    me = self
+    Enum.each(1..clients_number, fn(_) -> 
+      spawn(fn -> 
+        send(me, {:answer, :timer.tc(pmap_func, [[[35, 36, 37], &Utils.sq/1]])})
+      end) 
+    end)
+    {answers, failures} = receive_answers(clients_number, [], [])
+    IO.inspect(length(answers))
+    IO.inspect(failures)
   end
 
-  def map(lookup) do
-    map_description = check_validity("map", lookup.(["map"]))
-    map_func = InvocationLayer.ClientProxy.remote_function(map_description)
-    {time, {:ok, result}} = :timer.tc(map_func, [[[35, 36, 37, 38], &Utils.fib/1]])
-    IO.inspect(result, char_lists: false)
-    IO.puts time / 1000000
+  def receive_answers(number_of_concurrents, answers, failures) do
+    receive do
+      {:answer, {time, {:ok, ans}}} ->
+        if number_of_concurrents > 1 do
+          receive_answers(number_of_concurrents - 1, [{time / 1000000, ans} | answers], failures)
+        else
+          {[{time / 1000000, ans} | answers], failures}
+        end
+
+      {:answer, {time, {:error, error}}} ->
+        if number_of_concurrents > 1 do
+          receive_answers(number_of_concurrents - 1, answers, [{time / 1000000, error} | failures])
+        else
+          {answers, [{time / 1000000, error} | failures]}
+        end
+    end
   end
 
   def check_validity(name, {:ok, desc}) do
