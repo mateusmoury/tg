@@ -90,6 +90,7 @@ defmodule Client.CLI do
     pmap_func = InvocationLayer.ClientProxy.remote_function(pmap_description)
     me = self
     Enum.each(1..clients_number, fn(_) ->
+      :timer.sleep(10)
       spawn(fn -> 
         send(me, {:answer, :timer.tc(pmap_func, [[[27, 28, 29, 30], &Utils.fib/1]])})
       end) 
