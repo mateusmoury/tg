@@ -79,8 +79,17 @@ defmodule Client.CLI do
   def pmap(lookup) do
     pmap_description = check_validity("pmap", lookup.(["pmap"]))
     pmap_func = InvocationLayer.ClientProxy.remote_function(pmap_description)
-    {:ok, result} = pmap_func.([[5, 10, 15, 20, 25, 30, 35, 40], &Utils.fib/1])
+    {time, {:ok, result}} = :timer.tc(pmap_func, [[[35, 36, 37, 38], &Utils.fib/1]])
     IO.inspect(result, char_lists: false)
+    IO.puts time / 1000000
+  end
+
+  def map(lookup) do
+    map_description = check_validity("map", lookup.(["map"]))
+    map_func = InvocationLayer.ClientProxy.remote_function(map_description)
+    {time, {:ok, result}} = :timer.tc(map_func, [[[35, 36, 37, 38], &Utils.fib/1]])
+    IO.inspect(result, char_lists: false)
+    IO.puts time / 1000000
   end
 
   def check_validity(name, {:ok, desc}) do
