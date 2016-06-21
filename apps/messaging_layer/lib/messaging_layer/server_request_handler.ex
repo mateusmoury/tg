@@ -1,7 +1,7 @@
 defmodule MessagingLayer.ServerRequestHandler do
 
   @timeout 10000
-  @max_attempts 3
+  @max_attempts 10
 
   def listen(port) do
     case :gen_tcp.listen(port, [:binary, active: false, reuseaddr: true]) do
@@ -41,6 +41,7 @@ defmodule MessagingLayer.ServerRequestHandler do
           :gen_tcp.close(socket)
           {:error, :unable_to_send_message}
         else
+          :timer.sleep(1000)
           _send_message(socket, message, attempt + 1)
         end
       _ ->

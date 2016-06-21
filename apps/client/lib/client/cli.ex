@@ -90,9 +90,8 @@ defmodule Client.CLI do
     pmap_func = InvocationLayer.ClientProxy.remote_function(pmap_description)
     me = self
     Enum.each(1..clients_number, fn(_) ->
-      :timer.sleep(10)
       spawn(fn -> 
-        send(me, {:answer, :timer.tc(pmap_func, [[[27, 28, 29, 30], &Utils.fib/1]])})
+        send(me, {:answer, :timer.tc(pmap_func, [[Enum.to_list(1..50), &Utils.sq/1]])})
       end) 
     end)
     {answers, _} = receive_answers(clients_number, [], [])
@@ -110,7 +109,7 @@ defmodule Client.CLI do
     me = self
     Enum.each(1..clients_number, fn(_) ->
       spawn(fn ->
-        send(me, {:answer, :timer.tc(map_func, [[[27, 28, 29, 30], &Utils.fib/1]])})
+        send(me, {:answer, :timer.tc(map_func, [[Enum.to_list(1..50), &Utils.sq/1]])})
       end)
     end)
     {answers, _} = receive_answers(clients_number, [], [])
