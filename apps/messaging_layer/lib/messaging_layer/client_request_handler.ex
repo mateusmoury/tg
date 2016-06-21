@@ -16,7 +16,6 @@ defmodule MessagingLayer.ClientRequestHandler do
         if attempt == @max_attempts do
           {:error, :unable_to_connect_to_server}
         else
-          :timer.sleep(1000)
           _connect(host, port, attempt + 1)
         end
 
@@ -36,7 +35,6 @@ defmodule MessagingLayer.ClientRequestHandler do
           :gen_tcp.close(socket)
           {:error, :unable_to_send_message}
         else
-          :timer.sleep(1000)
           _send_message(socket, message, attempt + 1)
         end
       _ ->
