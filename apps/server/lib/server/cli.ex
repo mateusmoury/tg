@@ -87,9 +87,7 @@ defmodule Server.CLI do
   defp start_workers(port) do
     import Supervisor.Spec
 
-    {:ok, invoker_sup} =
-      Supervisor.start_child(Server.Supervisor, supervisor(Task.Supervisor, []))
-    Supervisor.start_child(Server.Supervisor, worker(Task, [InvocationLayer.Invoker, :invoke, [port, invoker_sup]]))
+    Supervisor.start_child(Server.Supervisor, worker(Task, [InvocationLayer.Invoker, :invoke, [port]]))
   end
 
   defp bind_services(port, naming_host, naming_port) do

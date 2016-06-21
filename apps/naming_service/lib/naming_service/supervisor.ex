@@ -11,8 +11,7 @@ defmodule NamingService.Supervisor do
     {:ok, stash} =
       Supervisor.start_child(sup, worker(NamingService.Stash, []))
     Supervisor.start_child(sup, supervisor(NamingService.SubSupervisor, [stash]))
-    {:ok, invoker_sup} = Supervisor.start_child(sup, supervisor(Task.Supervisor, []))
-    Supervisor.start_child(sup, worker(Task, [InvocationLayer.Invoker, :invoke, [port, invoker_sup]]))
+    {:ok, _} = Supervisor.start_child(sup, worker(Task, [InvocationLayer.Invoker, :invoke, [port]]))
   end
 
   def init(_) do

@@ -16,7 +16,7 @@ defmodule InvocationLayer.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :messaging_layer]]
   end
 
   # Dependencies can be Hex packages:

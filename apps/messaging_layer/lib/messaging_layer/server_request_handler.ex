@@ -1,52 +1,38 @@
 defmodule MessagingLayer.ServerRequestHandler do
 
+  @acceptors 128
   @timeout 10000
-  @max_attempts 10
 
-  def listen(port) do
-    case :gen_tcp.listen(port, [:binary, active: false, reuseaddr: true]) do
-      {:error, _} ->
-        {:error, :unable_to_use_port}
-      socket ->
-        socket
-    end
+  def listen(port, invoker_id) do
+    :ranch.start_listener(:ServerListener, @acceptors, :ranch_tcp, [port: port], MessagingLayer.ServerRequestHandler, [invoker_id])
   end
 
-  def accept(socket) do
-    :gen_tcp.accept(socket)
+  def start_link(ref, socket, transport, opts) do
+    pid = spawn_link(__MODULE__, :init, [ref, socket, transport, opts])
+    {:ok, pid}
   end
 
-  def change_socket_process(client, new_process) do
-    :gen_tcp.controlling_process(client, new_process)
+  def init(ref, socket, transport, opts) do
+    :ok = :ranch.accept_ack(ref)
+    [invoker_id | _] = opts
+    send invoker_id, {:new_connection, self}
+    process_request(socket, transport, invoker_id)
   end
 
-  def receive_message(socket) do
-    case :gen_tcp.recv(socket, 0, @timeout) do
-      {:error, _} ->
-        :gen_tcp.close(socket)
-        {:error, :unable_to_receive_message}
-      data ->
-        data
-    end
-  end
+  def process_request(socket, transport, invoker_id) do
+    receive do
+      :receive ->
+        {:ok, data} = transport.recv(socket, 0, @timeout)
+        send invoker_id, {:received, self, data}
+        process_request(socket, transport, invoker_id)
 
-  def send_message(message, socket) do
-    _send_message(message, socket, 0)
-  end
+      {:send, data} ->
+        :ok = transport.send(socket, data)
+        send invoker_id, {:sent, self}
+        process_request(socket, transport, invoker_id)
 
-  defp _send_message(message, socket, attempt) do
-    case :gen_tcp.send(socket, message) do
-      {:error, _} ->
-        if attempt == @max_attempts do
-          :gen_tcp.close(socket)
-          {:error, :unable_to_send_message}
-        else
-          :timer.sleep(1000)
-          _send_message(socket, message, attempt + 1)
-        end
-      _ ->
-        :gen_tcp.close(socket)
-        :ok
+      :close ->
+        :ok = transport.close(socket)
     end
   end
 end

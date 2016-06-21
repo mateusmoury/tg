@@ -17,7 +17,7 @@ defmodule NamingService.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :invocation_layer]]
   end
 
   def escript do
