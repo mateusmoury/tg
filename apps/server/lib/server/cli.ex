@@ -99,8 +99,13 @@ defmodule Server.CLI do
     {:ok, [{server_ip, _, _}, _]} = :inet.getif()
 
     ## Adding services
-    check_validity("pmap", remote_bind.(["pmap", {{server_ip, port}, {Server.Application, :pmap, [&is_list/1, &is_function/1]}}]))
-    check_validity("map", remote_bind.(["map", {{server_ip, port}, {Server.Application, :map, [&is_list/1, &is_function/1]}}]))
+    check_validity(
+      "arithmetic_op",
+      remote_bind.(["arithmetic_op", {
+        {server_ip, port},
+        {Server.Application, :arithmetic_op, [&is_number/1, &is_number/1, &is_function/1]}
+      }])
+    )
   end
 
   defp check_validity(name, {:error, _}) do

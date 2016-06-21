@@ -85,56 +85,38 @@ defmodule Client.CLI do
     apply(__MODULE__, String.to_atom(service), [lookup, clients_number])
   end
 
-  def pmap(lookup, clients_number) do
-    pmap_description = check_validity("pmap", lookup.(["pmap"]))
-    pmap_func = InvocationLayer.ClientProxy.remote_function(pmap_description)
-    me = self
-    Enum.each(1..clients_number, fn(_) ->
-      spawn(fn -> 
-        send(me, {:answer, :timer.tc(pmap_func, [[Enum.to_list(1..50), &Utils.sq/1]])})
-      end) 
-    end)
-    {answers, _} = receive_answers(clients_number, [], [])
-    acc =
-      answers
-      |> Enum.map(fn {time, _} -> time end)
-      |> Enum.reduce(fn(x, acc) -> x + acc end)
-    IO.puts(length(answers))
-    IO.puts(acc / length(answers))
+  def arithmetic_op(lookup, clients_number) do
+    arithmetic_op_description = check_validity("arithmetic_op", lookup.(["arithmetic_op"]))
+    arithmetic_op_func = InvocationLayer.ClientProxy.remote_function(arithmetic_op_description)
+    run_multiple_clients(arithmetic_op_func, clients_number, [3, 5, &Utils.mult/2])
+    {success, failure} = receive_answers(clients_number, 0, 0)
+    IO.puts("Quantidade de invocações bem sucedidas: #{success}")
+    IO.puts("Quantidade de invocações mal sucedidas: #{failure}")
   end
 
-  def map(lookup, clients_number) do
-    map_description = check_validity("map", lookup.(["map"]))
-    map_func = InvocationLayer.ClientProxy.remote_function(map_description)
+  def run_multiple_clients(func, clients_number, args) do
     me = self
     Enum.each(1..clients_number, fn(_) ->
       spawn(fn ->
-        send(me, {:answer, :timer.tc(map_func, [[Enum.to_list(1..50), &Utils.sq/1]])})
+        send(me, {:answer, func.(args)})
       end)
     end)
-    {answers, _} = receive_answers(clients_number, [], [])
-    acc =
-      answers
-      |> Enum.map(fn {time, _} -> time end)
-      |> Enum.reduce(fn(x, acc) -> x + acc end)
-    IO.puts(length(answers))
-    IO.puts(acc / length(answers))
   end
 
   def receive_answers(number_of_concurrents, answers, failures) do
     receive do
-      {:answer, {time, {:ok, ans}}} ->
+      {:answer, {:ok, _}} ->
         if number_of_concurrents > 1 do
-          receive_answers(number_of_concurrents - 1, [{time / 1000000, ans} | answers], failures)
+          receive_answers(number_of_concurrents - 1, answers + 1, failures)
         else
-          {[{time / 1000000, ans} | answers], failures}
+          {answers + 1, failures}
         end
 
-      {:answer, {time, {:error, error}}} ->
+      {:answer, {:error, _}} ->
         if number_of_concurrents > 1 do
-          receive_answers(number_of_concurrents - 1, answers, [{time / 1000000, error} | failures])
+          receive_answers(number_of_concurrents - 1, answers, failures + 1)
         else
-          {answers, [{time / 1000000, error} | failures]}
+          {answers, failures + 1}
         end
     end
   end
