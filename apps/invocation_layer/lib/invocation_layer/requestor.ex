@@ -5,7 +5,6 @@ defmodule InvocationLayer.Requestor do
       {:ok, socket} ->
         handle_communication(socket, mod_name, func_name, args)
       error ->
-        IO.puts error
         error
     end
   end
