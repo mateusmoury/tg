@@ -18,7 +18,7 @@ defmodule MessagingLayer.ServerRequestHandler do
     [invoker_id | _] = opts
     send invoker_id, {:new_connection, self}
     {time, _} = :timer.tc(&process_request/3, [socket, transport, invoker_id])
-    Logger.info time
+    Logger.info "Time to respond to remote invocation was: #{time}"
   end
 
   def process_request(socket, transport, invoker_id) do

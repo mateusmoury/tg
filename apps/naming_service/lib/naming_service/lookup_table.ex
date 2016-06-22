@@ -1,4 +1,5 @@
 defmodule NamingService.LookupTable do
+  require Logger
   use GenServer
 
   #####
@@ -14,6 +15,10 @@ defmodule NamingService.LookupTable do
 
   def bind(name, {location, interface}) do
     GenServer.cast __MODULE__, {:bind, name, location, interface}
+  end
+
+  def destroy do
+    GenServer.stop __MODULE__, :shutdown
   end
 
   #####
@@ -32,6 +37,7 @@ defmodule NamingService.LookupTable do
   end
 
   def terminate(_reason, {current_table, stash_pid}) do
+    Logger.info "Lookup Table was destroyed. Backing up."
     NamingService.Stash.save_table stash_pid, current_table
   end
 end

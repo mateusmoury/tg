@@ -6,7 +6,7 @@ defmodule NamingService.Mixfile do
      version: "0.0.1",
      deps_path: "../../deps",
      lockfile: "../../mix.lock",
-     elixir: "~> 1.1",
+     elixir: "~> 1.3",
      escript: escript,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
