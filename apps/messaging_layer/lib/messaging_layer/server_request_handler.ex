@@ -1,4 +1,5 @@
 defmodule MessagingLayer.ServerRequestHandler do
+  require Logger
 
   @acceptors 128
   @timeout 10000
@@ -16,7 +17,8 @@ defmodule MessagingLayer.ServerRequestHandler do
     :ok = :ranch.accept_ack(ref)
     [invoker_id | _] = opts
     send invoker_id, {:new_connection, self}
-    process_request(socket, transport, invoker_id)
+    {time, _} = :timer.tc(&process_request/3, [socket, transport, invoker_id])
+    Logger.info time
   end
 
   def process_request(socket, transport, invoker_id) do
