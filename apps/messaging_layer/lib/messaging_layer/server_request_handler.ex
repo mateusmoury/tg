@@ -1,7 +1,7 @@
 defmodule MessagingLayer.ServerRequestHandler do
   require Logger
 
-  @acceptors 200
+  @acceptors 128
   @timeout 10000
 
   def listen(port, invoker_id) do
