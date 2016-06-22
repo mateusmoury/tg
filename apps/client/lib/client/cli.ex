@@ -27,7 +27,9 @@ defmodule Client.CLI do
       {[help: true], _, _} ->
         :help
       {[naming_host: naming_host, naming_port: naming_port, service: service, clients: clients_number], _, _} ->
-        {{parse_host(naming_host), parse_port(naming_port)}, {service, parse_client_number(clients_number)}}
+        {{parse_host(naming_host), parse_port(naming_port)}, {service, parse_client_or_range(clients_number)}}
+      {[naming_host: naming_host, naming_port: naming_port, service: service, range: range], _, _} ->
+        {{parse_host(naming_host), parse_port(naming_port)}, {service, parse_client_or_range(range)}}
       _ ->
         {:error, :invalid_number_of_args}
     end
@@ -52,11 +54,11 @@ defmodule Client.CLI do
     String.length(port) != 0 && Regex.match?(~r/^[0-9]*$/, port)
   end
 
-  defp parse_client_number(clients_number) do
+  defp parse_client_or_range(clients_number) do
     if valid_integer(clients_number) do
       elem(Integer.parse(clients_number), 0)
     else
-      :clients_number_error
+      :clients_or_range_number_error
     end
   end
 
@@ -78,11 +80,11 @@ defmodule Client.CLI do
     IO.puts "Erro! Hostname inválido para o serviço de nomes."
   end
 
-  defp build_paths({{{:ok, naming_host}, naming_port}, {service, clients_number}}) do
+  defp build_paths({{{:ok, naming_host}, naming_port}, {service, clients_or_range}}) do
     naming_service_address = {naming_host, naming_port}
     naming_service_lookup = {NamingService.LookupTable, :lookup, [&is_bitstring/1]}
     lookup = InvocationLayer.ClientProxy.remote_function({naming_service_address, naming_service_lookup})
-    apply(__MODULE__, String.to_atom(service), [lookup, clients_number])
+    apply(__MODULE__, String.to_atom(service), [lookup, clients_or_range])
   end
 
   def arithmetic_op(lookup, clients_number) do
@@ -90,6 +92,24 @@ defmodule Client.CLI do
     arithmetic_op_func = InvocationLayer.ClientProxy.remote_function(arithmetic_op_description)
     run_multiple_clients(arithmetic_op_func, clients_number, [3, 5, &Utils.mult/2])
     {success, failure} = receive_answers(clients_number, 0, 0)
+    IO.puts("Quantidade de invocações bem sucedidas: #{success}")
+    IO.puts("Quantidade de invocações mal sucedidas: #{failure}")
+  end
+
+  def parallel_prime_numbers(lookup, range) do
+    parallel_prime_numbers_desc = check_validity("parallel_prime_numbers", lookup.(["parallel_prime_numbers"]))
+    parallel_prime_numbers_func = InvocationLayer.ClientProxy.remote_function(parallel_prime_numbers_desc)
+    run_multiple_clients(parallel_prime_numbers_func, 16, [1..range, 32])
+    {success, failure} = receive_answers(16, 0, 0)
+    IO.puts("Quantidade de invocações bem sucedidas: #{success}")
+    IO.puts("Quantidade de invocações mal sucedidas: #{failure}")
+  end
+
+  def prime_numbers(lookup, range) do
+    prime_numbers_desc = check_validity("prime_numbers", lookup.(["prime_numbers"]))
+    prime_numbers_func = InvocationLayer.ClientProxy.remote_function(prime_numbers_desc)
+    run_multiple_clients(prime_numbers_func, 16, [1..range])
+    {success, failure} = receive_answers(16, 0, 0)
     IO.puts("Quantidade de invocações bem sucedidas: #{success}")
     IO.puts("Quantidade de invocações mal sucedidas: #{failure}")
   end

@@ -104,6 +104,22 @@ defmodule Server.CLI do
         {Server.Application, :arithmetic_op, [&is_number/1, &is_number/1, &is_function/1]}
       }])
     )
+
+    check_validity(
+      "parallel_prime_numbers",
+      remote_bind.(["parallel_prime_numbers", {
+        {server_ip, port},
+        {Server.Application, :parallel_prime_numbers, [&Range.range?/1, &is_number/1]}
+      }])
+    )
+
+    check_validity(
+      "prime_numbers",
+      remote_bind.(["prime_numbers", {
+        {server_ip, port},
+        {Server.Application, :prime_numbers, [&Range.range?/1]}
+      }])
+    )
   end
 
   defp check_validity(name, {:error, _}) do
