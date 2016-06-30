@@ -1,10 +1,11 @@
 defmodule Client.CLI do
 
   @moduledoc """
-    Cliente escrito em Elixir para testar o middleware desenvolvido.
-    Pode ser executado da seguinte maneira:
+    Cliente escrito em Elixir para testar o middleware desenvolvido. Pode ser usado para executar dois experimentos diferentes.
+    O primeiro experimento utiliza a função de Operação Aritmética e varia o número de clientes para ver como o middleware
+    se comporta quando aumenta o número de conexões paralelas. Para executar esse experimento basta executar:
 
-    $ ./client --naming-host {naming_ip_address} --naming-port {naming_port} --service {service} --clients {clients_number}
+    $ ./client --naming-host {naming_ip_address} --naming-port {naming_port} --service arithmetic_op --clients {clients_number}
 
     O naming_host e a naming_port devem conter a localização do serviço de nomes,
     Que é a máquina onde o cliente vai buscar as funções assim que for
@@ -12,8 +13,27 @@ defmodule Client.CLI do
 
     O parametro naming_host deve ser um endereço ip válido ou localhost, para localizar o serviço de nomes.
     O parametro naming_port deve ser uma porta válida, contendo apenas números, que o serviço de nomes escuta.
-    O pametro service deve ser o nome de um servico que o cliente quer utilizar
-    O paraemntro clients_number deve ser o numero de clientes a serem executados
+    O parametro service deve ser o nome de um servico. No caso do experimento, o serviço é o arithmetic_op
+    O parametro clients_number deve ser o numero de clientes a serem executados de forma paralela. (2, 4, ... 128)
+
+    Já o segundo experimento utiliza a função Números Primos para verificar qual é o ganho em se paralelizar uma função remota,
+    dependo da sua granularidade, em termos do tempo médio de resposta aos clientes. Por isso, o número é fixado em 16 clientes
+    e o que varia é o tamanho do intervalo da função. Para executar:
+
+
+    $ ./client --naming-host {naming_ip_address} --naming-port {naming_port} --service {service_name} --range {interval_range}
+
+    O naming_host e a naming_port devem conter a localização do serviço de nomes,
+    Que é a máquina onde o cliente vai buscar as funções assim que for
+    inicializado. O serviço de nomes deve estar disponível no momento da inicialização.
+
+    O parametro naming_host deve ser um endereço ip válido ou localhost, para localizar o serviço de nomes.
+    O parametro naming_port deve ser uma porta válida, contendo apenas números, que o serviço de nomes escuta.
+    O parametro service_name deve ser o nome do servico. No caso do experimento, escolhe-se entre:
+      - prime_numbers: Versão não paralelizada
+      - parallel_prime_numbers: Versão paralelizada
+    O parametro interval_range deve o tamanho do intervalo no qual a função será aplicada. Basta passa o último número do
+    intervalo, que sempre começará em 1.
   """
 
   def main(args) do
