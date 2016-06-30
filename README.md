@@ -2,7 +2,7 @@
 
 É necessário ter Elixir instalado na máquina.
 
-Para executar os experimentos de paralelismo:
+## Para executar os experimentos de paralelismo:
 
 1. Acesse o app do NamingService: $ cd apps/naming_service
 2. Rode o executável do serviço de nomes com o parametro help e aprenda a utilizá-lo: $ ./naming_service --help
@@ -16,7 +16,7 @@ Para executar os experimentos de paralelismo:
 10. Os logs do servidor, que dizem quanto ele demorou para responder cada cliente, foi usado para os resultados.
 
 
-Para executar o experimento de tolerância a falhas.
+## Para executar o experimento de tolerância a falhas.
 
 1. Repita os passos 1,2 e 3 da abordagem anterior.
 2. Na aba nova do terminal, acesse o app da InvocationLayer: $ cd apps/invocation_layer
