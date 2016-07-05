@@ -17,8 +17,14 @@ defmodule MessagingLayer.ServerRequestHandler do
     :ok = :ranch.accept_ack(ref)
     [invoker_id | _] = opts
     send invoker_id, {:new_connection, self}
-    {time, _} = :timer.tc(&process_request/3, [socket, transport, invoker_id])
-    Logger.info "Time to respond to remote invocation was: #{time}"
+    {time, result} = :timer.tc(&process_request/3, [socket, transport, invoker_id])
+    transport.send(socket, result)
+    send invoker_id, {:sent, self}
+    receive do
+      :close ->
+        :ok = transport.close(socket)
+    end
+    Logger.info "#{time}"
   end
 
   def process_request(socket, transport, invoker_id) do
@@ -29,12 +35,7 @@ defmodule MessagingLayer.ServerRequestHandler do
         process_request(socket, transport, invoker_id)
 
       {:send, data} ->
-        :ok = transport.send(socket, data)
-        send invoker_id, {:sent, self}
-        process_request(socket, transport, invoker_id)
-
-      :close ->
-        :ok = transport.close(socket)
+        data
     end
   end
 end
