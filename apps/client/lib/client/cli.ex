@@ -111,7 +111,7 @@ defmodule Client.CLI do
     arithmetic_op_description = check_validity("arithmetic_op", lookup.(["arithmetic_op"]))
     arithmetic_op_func = InvocationLayer.ClientProxy.remote_function(arithmetic_op_description)
     run_multiple_clients(arithmetic_op_func, clients_number, [3, 5, &Utils.mult/2])
-    {success, failure} = receive_answers(clients_number, 0, 0)
+    {success, failure} = receive_answers(clients_number * 5000, 0, 0)
     IO.puts("Quantidade de invocações bem sucedidas: #{success}")
     IO.puts("Quantidade de invocações mal sucedidas: #{failure}")
   end
@@ -120,7 +120,7 @@ defmodule Client.CLI do
     parallel_prime_numbers_desc = check_validity("parallel_prime_numbers", lookup.(["parallel_prime_numbers"]))
     parallel_prime_numbers_func = InvocationLayer.ClientProxy.remote_function(parallel_prime_numbers_desc)
     run_multiple_clients(parallel_prime_numbers_func, 16, [1..range, 32])
-    {success, failure} = receive_answers(16, 0, 0)
+    {success, failure} = receive_answers(16 * 5000, 0, 0)
     IO.puts("Quantidade de invocações bem sucedidas: #{success}")
     IO.puts("Quantidade de invocações mal sucedidas: #{failure}")
   end
@@ -129,7 +129,7 @@ defmodule Client.CLI do
     prime_numbers_desc = check_validity("prime_numbers", lookup.(["prime_numbers"]))
     prime_numbers_func = InvocationLayer.ClientProxy.remote_function(prime_numbers_desc)
     run_multiple_clients(prime_numbers_func, 16, [1..range])
-    {success, failure} = receive_answers(16, 0, 0)
+    {success, failure} = receive_answers(16 * 5000, 0, 0)
     IO.puts("Quantidade de invocações bem sucedidas: #{success}")
     IO.puts("Quantidade de invocações mal sucedidas: #{failure}")
   end
@@ -138,7 +138,9 @@ defmodule Client.CLI do
     me = self
     Enum.each(1..clients_number, fn(_) ->
       spawn(fn ->
-        send(me, {:answer, func.(args)})
+        Enum.each(1..5000, fn(_) ->
+          send(me, {:answer, func.(args)})
+        end)
       end)
     end)
   end
