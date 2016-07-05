@@ -11,17 +11,25 @@ defmodule InvocationLayer.Invoker do
         send handler_pid, :receive
 
       {:received, handler_pid, data} ->
-        reply =
-          data
-          |> MessagingLayer.Marshaller.unmarshall
-          |> call_function
-          |>  MessagingLayer.Marshaller.marshall
+        me = self
+        spawn(fn ->
+          send me, {:processed, handler_pid, process_request(data)}
+        end)
+
+      {:processed, handler_pid, reply} ->
         send handler_pid, {:send, reply}
 
       {:sent, handler_pid} ->
         send handler_pid, :close
     end
     manage_connections
+  end
+
+  def process_request(data) do
+    data
+    |> MessagingLayer.Marshaller.unmarshall
+    |> call_function
+    |>  MessagingLayer.Marshaller.marshall
   end
 
   def call_function({mod_name, func_name, args}) do
