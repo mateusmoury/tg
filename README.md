@@ -1,6 +1,12 @@
 # ExMiddleware
 
-É necessário ter Elixir instalado na máquina.
+É necessário ter Elixir instalado na máquina: http://elixir-lang.org/install.html
+Ao entrar no diretório do projeto, instale as dependências: 
+
+
+$ mix deps.get
+
+$ mix deps.compile
 
 ## Para executar os experimentos de paralelismo:
 
