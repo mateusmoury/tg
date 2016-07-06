@@ -140,6 +140,7 @@ defmodule Client.CLI do
       spawn(fn ->
         Enum.each(1..1000, fn(_) ->
           send(me, {:answer, func.(args)})
+          :timer.sleep(500)
         end)
       end)
     end)
