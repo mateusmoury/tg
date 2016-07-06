@@ -138,9 +138,9 @@ defmodule Client.CLI do
     me = self
     Enum.each(1..clients_number, fn(_) ->
       spawn(fn ->
-        Enum.each(1..1000, fn(_) ->
+        Enum.each(1..3000, fn(_) ->
           send(me, {:answer, func.(args)})
-          :timer.sleep(500)
+          :timer.sleep(250)
         end)
       end)
     end)
