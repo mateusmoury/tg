@@ -111,7 +111,7 @@ defmodule Client.CLI do
     arithmetic_op_description = check_validity("arithmetic_op", lookup.(["arithmetic_op"]))
     arithmetic_op_func = InvocationLayer.ClientProxy.remote_function(arithmetic_op_description)
     run_multiple_clients(arithmetic_op_func, clients_number, [3, 5, &Utils.mult/2])
-    {success, failure} = receive_answers(clients_number * 3000, 0, 0)
+    {success, failure} = receive_answers(clients_number * 1000, 0, 0)
     IO.puts("Quantidade de invocações bem sucedidas: #{success}")
     IO.puts("Quantidade de invocações mal sucedidas: #{failure}")
   end
@@ -119,8 +119,8 @@ defmodule Client.CLI do
   def parallel_prime_numbers(lookup, range) do
     parallel_prime_numbers_desc = check_validity("parallel_prime_numbers", lookup.(["parallel_prime_numbers"]))
     parallel_prime_numbers_func = InvocationLayer.ClientProxy.remote_function(parallel_prime_numbers_desc)
-    run_multiple_clients(parallel_prime_numbers_func, 16, [1..range, 64])
-    {success, failure} = receive_answers(16 * 3000, 0, 0)
+    run_multiple_clients(parallel_prime_numbers_func, 16, [1..range, 32])
+    {success, failure} = receive_answers(8 * 1000, 0, 0)
     IO.puts("Quantidade de invocações bem sucedidas: #{success}")
     IO.puts("Quantidade de invocações mal sucedidas: #{failure}")
   end
@@ -129,7 +129,7 @@ defmodule Client.CLI do
     prime_numbers_desc = check_validity("prime_numbers", lookup.(["prime_numbers"]))
     prime_numbers_func = InvocationLayer.ClientProxy.remote_function(prime_numbers_desc)
     run_multiple_clients(prime_numbers_func, 16, [1..range])
-    {success, failure} = receive_answers(16 * 3000, 0, 0)
+    {success, failure} = receive_answers(8 * 1000, 0, 0)
     IO.puts("Quantidade de invocações bem sucedidas: #{success}")
     IO.puts("Quantidade de invocações mal sucedidas: #{failure}")
   end
@@ -138,7 +138,7 @@ defmodule Client.CLI do
     me = self
     Enum.each(1..clients_number, fn(_) ->
       spawn(fn ->
-        Enum.each(1..3000, fn(_) ->
+        Enum.each(1..1000, fn(_) ->
           send(me, {:answer, func.(args)})
           :timer.sleep(250)
         end)
