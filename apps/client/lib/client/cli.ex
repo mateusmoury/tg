@@ -119,7 +119,7 @@ defmodule Client.CLI do
   def parallel_prime_numbers(lookup, range) do
     parallel_prime_numbers_desc = check_validity("parallel_prime_numbers", lookup.(["parallel_prime_numbers"]))
     parallel_prime_numbers_func = InvocationLayer.ClientProxy.remote_function(parallel_prime_numbers_desc)
-    run_multiple_clients(parallel_prime_numbers_func, 16, [1..range, 16])
+    run_multiple_clients(parallel_prime_numbers_func, 16, [1..range, 64])
     {success, failure} = receive_answers(16 * 3000, 0, 0)
     IO.puts("Quantidade de invocações bem sucedidas: #{success}")
     IO.puts("Quantidade de invocações mal sucedidas: #{failure}")
