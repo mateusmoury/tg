@@ -24,7 +24,7 @@ defmodule MessagingLayer.ServerRequestHandler do
       :close ->
         :ok = transport.close(socket)
     end
-    Logger.info "#{time}"
+    Logger.info "Time to respond to remote invocation was #{time}"
   end
 
   def process_request(socket, transport, invoker_id) do
